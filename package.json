@@ -29,7 +29,7 @@
     "typescript": "^3.9.7"
   },
   "bin": {
-    "paxada": "dist/index"
+    "paxada": "dist/index.js"
   },
   "types": "dist/index.d.ts"
 }

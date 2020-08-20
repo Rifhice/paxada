@@ -18,6 +18,7 @@
   "dependencies": {
     "commander": "^6.0.0",
     "fs-extra": "^9.0.1",
+    "mentine": "^1.0.19",
     "openapi3-ts": "^1.4.0"
   },
   "devDependencies": {

@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "outDir": "dist",
+        "target": "ESNext",
+        "strict": true,
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "baseUrl": "src",
+        "paths": {
+            "@/daemon/*": ["daemon/*"],
+            "@/exceptions/*": ["exceptions/*"],
+            "@/helpers/*": ["helpers/*"],
+            "@/middlewares/*": ["middlewares/*"],
+            "@/entities/*": ["entities/*"],
+            "@/routes/*": ["routes/*"],
+            "@/loaders/*": ["loaders/*"],
+            "@/config": ["config.ts"],
+            "@/logger": ["logger.ts"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"],
+    "files": ["src/custom.d.ts"],
+    "baseUrl": "./src"
+}

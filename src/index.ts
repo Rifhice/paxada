@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import { copy } from "fs-extra";
+import { join } from "path";
 const program = new Command();
 
 program.option(
@@ -13,4 +14,4 @@ program.parse(process.argv);
 
 const { path } = program;
 
-copy("template/", path);
+copy(join(__dirname, "template/"), path);

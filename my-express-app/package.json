@@ -1,0 +1,91 @@
+{
+    "name": "boilerplate",
+    "version": "1.0.5",
+    "description": "",
+    "main": "dist/index.js",
+    "scripts": {
+        "test": "jest --coverage",
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "local:dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon\"",
+        "dev": "docker-compose up --force-recreate --build",
+        "eslint": "eslint --ext js,ts,tsx",
+        "lint": "npm run eslint -- src",
+        "lint:fix": "npm run eslint -- --fix src",
+        "prettify": "prettier --write",
+        "checkTs": "tsc --noEmit"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "_moduleAliases": {
+        "@/daemon": "dist/daemon",
+        "@/exceptions": "dist/exceptions",
+        "@/helpers": "dist/helpers",
+        "@/middlewares": "dist/middlewares",
+        "@/entities": "dist/entities",
+        "@/routes": "dist/routes",
+        "@/config": "dist/config",
+        "@/loaders": "dist/loaders",
+        "@/logger": "dist/logger"
+    },
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "chalk": "^4.1.0",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "error-stack-parser": "^2.0.6",
+        "express": "^4.17.1",
+        "express-basic-auth": "^1.2.0",
+        "express-bearer-token": "^2.4.0",
+        "express-validator": "^6.6.1",
+        "helmet": "^4.1.0",
+        "lodash": "^4.17.20",
+        "mentine": "^1.0.19",
+        "module-alias": "^2.2.2",
+        "moment": "^2.27.0",
+        "mongoose": "^5.10.0",
+        "morgan": "^1.10.0",
+        "sjoa-builder": "^1.0.5",
+        "socket.io": "^2.3.0",
+        "socket.io-redis": "^5.3.0",
+        "swagger-ui-express": "^4.1.4",
+        "winston": "^3.3.3"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.7",
+        "@types/lodash": "^4.14.159",
+        "@types/mongoose": "^5.7.36",
+        "@types/morgan": "^1.9.1",
+        "@types/socket.io-redis": "^1.0.26",
+        "@types/split": "^1.0.0",
+        "@types/swagger-ui-express": "^4.1.2",
+        "@types/express": "^4.17.3",
+        "@types/jest": "^26.0.9",
+        "concurrently": "^5.2.0",
+        "eslint": "^7.7.0",
+        "eslint-config-airbnb-typescript-prettier": "^3.1.0",
+        "eslint-import-resolver-alias": "^1.1.2",
+        "eslint-plugin-import": "^2.22.0",
+        "husky": "^4.2.5",
+        "jest": "^26.4.1",
+        "lint-staged": "^10.2.11",
+        "nodemon": "^2.0.4",
+        "prettier": "^2.0.5",
+        "ts-jest": "^26.1.4",
+        "typescript": "^3.9.7"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx}": [
+            "npm run eslint -- --fix"
+        ],
+        "*.{md,json}": [
+            "prettier --write"
+        ]
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run checkTs && lint-staged"
+        }
+    }
+}

@@ -5,10 +5,10 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "tsc",
+    "build": "tsc && cp -r template/ dist/template",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon\"",
-    "prepare": "tsc",
+    "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "publish:patch": "npm version patch && npm publish --access public"
   },

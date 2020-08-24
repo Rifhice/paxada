@@ -1,5 +1,5 @@
 import { MONGO, NODE_ENV, REDIS_URL } from '@/config';
-import routes from '@/routes/index';
+import routes from '@/routes';
 import { Express } from 'express';
 import { Server } from 'http';
 import documentation from './documentation';

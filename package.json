@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "tsc && cp -r template/ dist/template",
+    "build": "tsc && cp -r src/templates dist/templates",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon\"",
     "prepare": "npm run build",
@@ -16,15 +16,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "change-case": "^4.1.1",
     "commander": "^6.0.0",
     "fs-extra": "^9.0.1",
-    "mentine": "^1.0.19",
-    "openapi3-ts": "^1.4.0"
+    "handlebars": "^4.7.6",
+    "inquirer": "^7.3.3",
+    "mentine": "^1.0.22",
+    "openapi3-ts": "^1.4.0",
+    "plop": "^2.7.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/jest": "^26.0.9",
     "concurrently": "^5.2.0",
+    "cpx": "^1.5.0",
     "jest": "^26.2.2",
     "nodemon": "^2.0.4",
     "ts-jest": "^26.1.4",

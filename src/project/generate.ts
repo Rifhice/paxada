@@ -13,6 +13,6 @@ export default function generateProject() {
       },
     ])
     .then(({ path }) => {
-      copy(join(__dirname, "template/"), path);
+      copy(join(__dirname, "..", "templates/Project"), path);
     });
 }

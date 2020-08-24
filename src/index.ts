@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import generateProject from "./generateProject";
+import generateProject from "./project/generate";
 import generateRoute from "./route/generator";
 import inquirer = require("inquirer");
 

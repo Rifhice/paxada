@@ -1,0 +1,16 @@
+import { Route } from "mentine";
+
+export const route: Route = {
+simplified: true,
+method: "{{{ method }}}",
+path: "{{{ path }}}",
+summary: "",
+description: "",
+tag: "",
+{{#if hasBody }}
+body: {},
+{{/if}}
+pathVariables: {},
+queryVariables: {},
+responses: {},
+};

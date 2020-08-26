@@ -1,0 +1,28 @@
+import checkValidator from "middlewares/checkValidator";
+import route from "./{{name}}.route";
+import validator from "./{{name}}.validator";
+{{#ifOr hasBody hasQuery}}
+import {
+{{#if hasBody}}
+sanityzeBody,
+{{/if}}
+{{#if hasQuery}}
+sanityzeQuery
+{{/if}}
+} from "middlewares/sanitize";
+{{/ifOr}}
+import wrapAsync from "helpers/wrapAsync";
+import routeId from "middlewares/routeId";
+
+
+export default [
+routeId({{{ routeId }}}),
+checkValidator(validator),
+{{#if hasBody}}
+sanityzeBody({{{ bodySanitizer }}})
+{{/if}}
+{{#if hasQuery}}
+sanityzeQuery({{{ querySanitizer }}})
+{{/if}}
+wrapAsync(route),
+];

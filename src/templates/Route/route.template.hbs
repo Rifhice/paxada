@@ -1,0 +1,34 @@
+import { Request, Response } from "express";
+{{#ifOr hasBody hasQuery hasParam}}
+import {
+{{#if hasBody }}
+{{#pascalCase}}{{{name}}}{{/pascalCase}}Body,
+{{/if}}
+{{#if hasQuery }}
+{{#pascalCase}}{{{name}}}{{/pascalCase}}Query,
+{{/if}}
+{{#if hasParam }}
+{{#pascalCase}}{{{name}}}{{/pascalCase}}Path,
+{{/if}}
+{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200
+} from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.interfaces";
+{{/ifOr}}
+{{#if isPrivate }}
+import { UserLeanDocument } from "persistance/User/User.interfaces";
+{{/if}}
+
+export default async (req: Request, res: Response<{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200>) => {
+    {{#if isPrivate }}
+    const user = req.user! as UserLeanDocument
+    {{/if}}
+    {{#if hasBody }}
+    const body = req.body as {{#pascalCase}}{{{name}}}{{/pascalCase}}Body;
+    {{/if}}
+    {{#if hasQuery }}
+    const query = req.query as {{#pascalCase}}{{{name}}}{{/pascalCase}}Query;
+    {{/if}}
+    {{#if hasParam }}
+    const param = req.params as unknown as {{#pascalCase}}{{{name}}}{{/pascalCase}}Path;
+    {{/if}}
+    return res.send();
+    };

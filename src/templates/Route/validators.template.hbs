@@ -1,0 +1,11 @@
+{{#ifOr hasBody hasQuery hasParam}}
+import {
+{{#if hasBody }}body,{{/if}}
+{{#if hasQuery }}query,{{/if}}
+{{#if hasParam }}param,{{/if}}
+} from "express-validator";
+{{/ifOr}}
+
+export default [
+{{{ validators }}}
+];

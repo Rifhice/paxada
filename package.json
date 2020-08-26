@@ -23,7 +23,9 @@
     "inquirer": "^7.3.3",
     "mentine": "^1.0.22",
     "openapi3-ts": "^1.4.0",
-    "plop": "^2.7.4"
+    "plop": "^2.7.4",
+    "prettier": "^2.1.1",
+    "typescript-require": "^0.3.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",

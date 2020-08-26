@@ -1,8 +1,7 @@
 import { Route, Variable, VariableArray, VariableRef } from "mentine";
 import * as utils from "mentine/dist/Route/validators";
+import { normalize } from "../../helpers";
 import * as converters from "../converter";
-
-const normalize = (string: string) => string.replace(/[ \n]/g, "");
 
 const refVariable: VariableRef = {
   type: "ref",

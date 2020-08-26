@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+require("typescript-require");
 import generateProject from "./project/generate";
 import generateRoute from "./route/generator";
 import inquirer = require("inquirer");
+global.require = require;
 
 inquirer
   .prompt([
@@ -13,8 +15,9 @@ inquirer
     },
   ])
   .then(({ toGenerate }) => {
-    if (toGenerate === "Route") generateRoute();
-    else if (toGenerate === "Entity") {
+    if (toGenerate === "Route") {
+      generateRoute();
+    } else if (toGenerate === "Entity") {
     } else if (toGenerate === "Project") {
       generateProject();
     }

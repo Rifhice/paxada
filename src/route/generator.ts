@@ -1,13 +1,23 @@
+import { ObjectType, Route, validateRoute, Variable } from "mentine";
 import { join } from "path";
 import {
   buildFolderStructureFromPath,
   createFileFromHBS,
   fileExists,
+  filesMatching,
+  getExportedMembersFromFile,
+  getNextRouteId,
   nameRoute,
+  prettify,
 } from "../helpers";
+import {
+  getSanitizers,
+  getTypescriptInterfaces,
+  getValidators,
+} from "./converter";
 import inquirer = require("inquirer");
 
-const checkRouteFileExists = async (folderPath: string) => {
+export const checkRouteFileExists = async (folderPath: string) => {
   const interfacesFileExists = await fileExists(
     join(process.cwd(), folderPath, "*.interfaces.ts")
   );
@@ -39,7 +49,7 @@ const promptRouteInfo = () => {
       type: "list",
       name: "method",
       message: "Route method",
-      choices: ["GET", "POST", "PUT", "DELETE"],
+      choices: ["get", "post", "put", "delete"],
     },
     {
       type: "input",
@@ -49,6 +59,138 @@ const promptRouteInfo = () => {
   ]);
 };
 
+export const extractDataFromDoc = (doc: Route, name?: string) => {
+  if (!name) name = nameRoute(doc.path, doc.method);
+  const typescriptInterfaces = getTypescriptInterfaces(doc, name);
+  const result: {
+    typescriptInterfaces: ReturnType<typeof getTypescriptInterfaces>;
+    bodyValidators?: ReturnType<typeof getValidators>;
+    bodySanitizer?: ReturnType<typeof getSanitizers>;
+    pathValidators?: ReturnType<typeof getValidators>;
+    queryValidators?: ReturnType<typeof getValidators>;
+    querySanitizer?: ReturnType<typeof getSanitizers>;
+    interfacesString: string;
+    doc: Route;
+    name: string;
+    hasBody: boolean;
+    hasQuery: boolean;
+    hasParam: boolean;
+    validators?: string;
+  } = {
+    typescriptInterfaces,
+    interfacesString: formatTypescriptInterface(typescriptInterfaces),
+    doc,
+    name,
+    hasBody: Object.keys(doc).includes("body"),
+    hasQuery: !!doc.queryVariables,
+    hasParam: !!doc.pathVariables,
+  };
+  if ((doc.method === "post" || doc.method === "put") && doc.body) {
+    result.bodyValidators = getValidators(doc.body).map(
+      (validator) => `body${validator}`
+    );
+    if (
+      doc.body.type === "allOf" ||
+      doc.body.type === "anyOf" ||
+      doc.body.type === "oneOf"
+    )
+      console.warn(
+        "Sanitizer for allOf | anyOf | oneOf body type are not implemented"
+      );
+    result.bodySanitizer = getSanitizers(doc.body as ObjectType<Variable>);
+  }
+  if (doc.pathVariables)
+    result.pathValidators = getValidators(doc.pathVariables).map(
+      (validator) => `path${validator}`
+    );
+  if (doc.queryVariables) {
+    result.queryValidators = getValidators(doc.queryVariables).map(
+      (validator) => `query${validator}`
+    );
+    result.querySanitizer = getSanitizers(doc.queryVariables);
+  }
+  result.validators = [
+    ...(!!result.bodyValidators ? result.bodyValidators : []),
+    ...(!!result.pathValidators ? result.pathValidators : []),
+    ...(!!result.queryValidators ? result.queryValidators : []),
+  ].join(",");
+  return result;
+};
+
+export const extractDataFromDocFile = (docPath: string) => {
+  const exportedMembers = getExportedMembersFromFile(docPath);
+  const { route } = exportedMembers;
+  if (!route) throw Error();
+  validateRoute(route);
+  return extractDataFromDoc(route);
+};
+
+export const formatTypescriptInterface = (
+  interfaces: ReturnType<typeof getTypescriptInterfaces>
+): string => {
+  return interfaces
+    .map(
+      (int) => `
+    export interface ${int.interfaceName}
+     ${int.interfaceContent}
+  `
+    )
+    .join("\n");
+};
+
+const checkExistence = async (
+  filePaths: Array<string>
+): Promise<Array<string>> => {
+  const exists = [];
+  for (const filePath of filePaths) {
+    if (await fileExists(filePath)) {
+      exists.push(filePath);
+    }
+  }
+  return exists;
+};
+
+const checkForFilesAndPromptForOverride = async (
+  filePaths: Array<string>
+): Promise<Array<string>> => {
+  const exists = await checkExistence(filePaths);
+  const toCreate = filePaths.filter((file) => !exists.includes(file));
+  if (exists.length > 0) {
+    const result = await inquirer.prompt([
+      {
+        type: "checkbox",
+        name: "overwrite",
+        message: "Those files alredy exists, which do you want to overwrite?",
+        choices: exists,
+      },
+    ]);
+    toCreate.push(...result.overwrite);
+  }
+  return toCreate;
+};
+
+const generateFiles = async (
+  toGenerate: Array<{
+    filePath: string;
+    templatePath: string;
+  }>,
+  data: any
+) => {
+  const filtered = await checkForFilesAndPromptForOverride(
+    toGenerate.map((file) => file.filePath)
+  );
+  toGenerate.forEach(({ filePath, templatePath }) => {
+    if (filtered.includes(filePath)) {
+      createFileFromHBS({
+        filePath,
+        data,
+        templatePath,
+      });
+      prettify(filePath);
+    }
+  });
+};
+
 export default async function generateRoute() {
   try {
     const { method, path, isPrivate } = await promptRouteInfo();
@@ -56,6 +198,7 @@ export default async function generateRoute() {
     let folderPath = join(
       "src",
       isPrivate ? "private" : "public",
+      "route",
       buildFolderStructureFromPath(path),
       nameRoute(path, method)
     );
@@ -79,55 +222,59 @@ export default async function generateRoute() {
       folderPath = path;
     }
 
-    const docFileExists = await fileExists(
+    const buildFilePath = (fileExtension) =>
+      join(folderPath, folderPath.split("/").pop() + fileExtension);
+    const buildTemplatePath = (templateFileName) =>
+      join(__dirname, "..", "templates", "Route", templateFileName);
+
+    const docFiles = await filesMatching(
       join(process.cwd(), folderPath, "*.doc.ts")
     );
 
-    if (docFileExists) {
-      const {
-        interfacesFileExists,
-        routeFileExists,
-        indexFileExists,
-        validatorsFileExists,
-      } = await checkRouteFileExists(folderPath);
-      const choices = [
-        ...(interfacesFileExists ? ["interfaces.ts"] : []),
-        ...(routeFileExists ? ["route.ts"] : []),
-        ...(indexFileExists ? ["index.ts"] : []),
-        ...(validatorsFileExists ? ["validators.ts"] : []),
-      ];
+    const docFile = docFiles[0];
 
-      let overwrite;
-      if (choices.length > 0) {
-        const result = await inquirer.prompt([
+    if (docFile) {
+      const data = {
+        isPrivate,
+        ...extractDataFromDocFile(docFile),
+        routeId: await getNextRouteId(),
+      };
+
+      generateFiles(
+        [
           {
-            type: "checkbox",
-            name: "overwrite",
-            message:
-              "Those files alredy exists, which do you want to overwrite?",
-            choices,
-            default: choices,
+            filePath: buildFilePath(".interfaces.ts"),
+            templatePath: buildTemplatePath("interfaces.template.hbs"),
           },
-        ]);
-        overwrite = result.overwrite;
-      }
-      console.log(overwrite);
-      //generate files from doc (create if doesn't exists or overwrite if in the overwrite array)
+          {
+            filePath: buildFilePath(".validators.ts"),
+            templatePath: buildTemplatePath("validators.template.hbs"),
+          },
+          {
+            filePath: buildFilePath(".index.ts"),
+            templatePath: buildTemplatePath("index.template.hbs"),
+          },
+          {
+            filePath: buildFilePath(".route.ts"),
+            templatePath: buildTemplatePath("route.template.hbs"),
+          },
+        ],
+        data
+      );
     } else {
-      //generate folder structure + doc
-      createFileFromHBS({
-        filePath: join(folderPath, folderPath.split("/").pop() + ".doc.ts"),
-        data: {
-          interfacesString: "lol",
-        },
-        templatePath: join(
-          __dirname,
-          "..",
-          "templates",
-          "Route",
-          "interfaces.template.hbs"
-        ),
-      });
+      generateFiles(
+        [
+          {
+            filePath: buildFilePath(".doc.ts"),
+            templatePath: buildTemplatePath("doc.template.hbs"),
+          },
+        ],
+        {
+          path,
+          method,
+          hasBody: method === "POST" || method === "PUT",
+        }
+      );
     }
   } catch (error) {
     console.log(error);

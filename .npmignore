@@ -2,4 +2,4 @@ src
 tsconfig.json
 tslint.json
 .prettierrc
-!dist/template/src
+!dist/template/Project/src

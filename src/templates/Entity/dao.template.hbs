@@ -17,7 +17,8 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
     static count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options: QueryFindOptions }): Promise<number> {
         return {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.count(param.conditions).setOptions(param.options).exec();
         }
-        static async create(
+
+        async create(
         data: Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id"> |
             Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id">[]
                 ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
@@ -27,6 +28,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                     this.emit("created", created);
                     return created;
                     }
+
                     static findOne(
                     param:
                     | string
@@ -43,6 +45,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                     ().setOptions(param.options)
                                     ).exec();
                                     }
+
                                     static findMany(param: {
                                     conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
                                         options: QueryFindOptions;
@@ -52,6 +55,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                 .setOptions(param.options)
                                                 .exec();
                                                 }
+
                                                 static async findAndCountMany(param: {
                                                 conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
                                                     options: QueryFindOptions;
@@ -68,6 +72,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                         }),
                                                         };
                                                         }
+
                                                         async deleteOne(
                                                         param:
                                                         | string
@@ -89,6 +94,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                         if (deleted) this.emit("deleted", deleted);
                                                                         return deleted;
                                                                         }
+
                                                                         async deleteMany(param: {
                                                                         conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
                                                                             options: QueryFindOptions;
@@ -103,6 +109,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                 this.emit("deleted", toDelete);
                                                                                 return toDelete;
                                                                                 }
+
                                                                                 async updateOne(param: {
                                                                                 conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
                                                                                     ;
@@ -134,6 +141,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                             updated, old);
                                                                                             return updated;
                                                                                             }
+                                                                                            
                                                                                             async updateMany(param: {
                                                                                             conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
                                                                                                 ;

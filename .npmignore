@@ -3,3 +3,6 @@ tsconfig.json
 tslint.json
 .prettierrc
 !dist/templates/Project/src
+!dist/templates/Project/tsconfig.json
+!dist/templates/Project/tslint.json
+!dist/templates/Project/.prettierrc

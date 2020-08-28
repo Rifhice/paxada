@@ -14,10 +14,10 @@ import {{#pascalCase}}{{{name}}}{{/pascalCase}}Model from "./{{#pascalCase}}{{{n
 @Service()
 export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
 <DAOEvents<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>> {
-    count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options: QueryFindOptions }) {
+    static count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options: QueryFindOptions }): Promise<number> {
         return {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.count(param.conditions).setOptions(param.options).exec();
         }
-        async create(
+        static async create(
         data: Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id"> |
             Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id">[]
                 ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
@@ -27,7 +27,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                     this.emit("created", created);
                     return created;
                     }
-                    findOne(
+                    static findOne(
                     param:
                     | string
                     | {
@@ -43,7 +43,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                     ().setOptions(param.options)
                                     ).exec();
                                     }
-                                    findMany(param: {
+                                    static findMany(param: {
                                     conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
                                         options: QueryFindOptions;
                                         }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
@@ -52,17 +52,17 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                 .setOptions(param.options)
                                                 .exec();
                                                 }
-                                                async findAndCountMany(param: {
+                                                static async findAndCountMany(param: {
                                                 conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
                                                     options: QueryFindOptions;
                                                     }): Promise<{ values: I{{#pascalCase}}{{{name}}}{{/pascalCase}}[];
                                                         total: number; }> {
                                                         return {
-                                                        total: await this.count({
+                                                        total: await {{#pascalCase}}{{{name}}}{{/pascalCase}}.count({
                                                         conditions: param.conditions,
                                                         options: param.options,
                                                         }),
-                                                        values: await this.findMany({
+                                                        values: await {{#pascalCase}}{{{name}}}{{/pascalCase}}.findMany({
                                                         conditions: param.conditions,
                                                         options: param.options,
                                                         }),
@@ -94,7 +94,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                             options: QueryFindOptions;
                                                                             }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]>
                                                                                 {
-                                                                                const toDelete = await this.findMany({
+                                                                                const toDelete = await {{#pascalCase}}{{{name}}}{{/pascalCase}}.findMany({
                                                                                 conditions: param.conditions,
                                                                                 options: param.options,
                                                                                 });
@@ -113,7 +113,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                         }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}
                                                                                             | null> {
                                                                                             const old = await
-                                                                                            this.findOne({
+                                                                                            {{#pascalCase}}{{{name}}}{{/pascalCase}}.findOne({
                                                                                             conditions:
                                                                                             param.conditions,
                                                                                             options: param.options,
@@ -124,7 +124,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                             .setOptions(param.options)
                                                                                             .exec();
                                                                                             const updated = await
-                                                                                            this.findOne({
+                                                                                            {{#pascalCase}}{{{name}}}{{/pascalCase}}.findOne({
                                                                                             conditions:
                                                                                             param.conditions,
                                                                                             options: param.options,
@@ -145,7 +145,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                                         {
                                                                                                         const old =
                                                                                                         await
-                                                                                                        this.findMany({
+                                                                                                        {{#pascalCase}}{{{name}}}{{/pascalCase}}.findMany({
                                                                                                         conditions:
                                                                                                         param.conditions,
                                                                                                         options:
@@ -159,7 +159,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
                                                                                                         .exec();
                                                                                                         const updated =
                                                                                                         await
-                                                                                                        this.findMany({
+                                                                                                        {{#pascalCase}}{{{name}}}{{/pascalCase}}.findMany({
                                                                                                         conditions:
                                                                                                         param.conditions,
                                                                                                         options:

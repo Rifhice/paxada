@@ -1,8 +1,8 @@
 import Container from "typedi";
-import { {{#pascalCase}}{{{name}}}{{/pascalCase}}Service } from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.subscriber";
+import { {{#pascalCase}}{{{name}}}{{/pascalCase}}Service } from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.services";
 
 const {{#camelCase}}{{{name}}}{{/camelCase}}Service = Container.get({{#pascalCase}}{{{name}}}{{/pascalCase}}Service);
 
 {{#camelCase}}{{{name}}}{{/camelCase}}Service.on("TODO", () => {
-//TODO...
+// TODO...
 });

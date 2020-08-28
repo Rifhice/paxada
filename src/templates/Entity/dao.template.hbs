@@ -1,0 +1,174 @@
+import {
+FilterQuery,
+QueryFindOneAndRemoveOptions,
+QueryFindOneAndUpdateOptions,
+QueryFindOptions,
+UpdateQuery,
+} from "mongoose";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { Service } from "typedi";
+import { DAOEvents } from "../../interfaces";
+import { I{{#pascalCase}}{{{name}}}{{/pascalCase}} } from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.interfaces";
+import {{#pascalCase}}{{{name}}}{{/pascalCase}}Model from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.model";
+
+@Service()
+export class {{#pascalCase}}{{{name}}}{{/pascalCase}} extends TypedEmitter
+<DAOEvents<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>> {
+    count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options: QueryFindOptions }) {
+        return {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.count(param.conditions).setOptions(param.options).exec();
+        }
+        async create(
+        data: Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id"> |
+            Omit<I{{#pascalCase}}{{{name}}}{{/pascalCase}}, "_id">[]
+                ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
+                    const created = await (Array.isArray(data)
+                    ? Promise.all(data.map((toCreate) => new {{#pascalCase}}{{{name}}}{{/pascalCase}}Model(toCreate).save()))
+                    : new {{#pascalCase}}{{{name}}}{{/pascalCase}}Model(data).save());
+                    this.emit("created", created);
+                    return created;
+                    }
+                    findOne(
+                    param:
+                    | string
+                    | {
+                    conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
+                        options: QueryFindOptions;
+                        }
+                        ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | null> {
+                            return (typeof param === "string"
+                            ? {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.findById(param).lean
+                            <I{{#pascalCase}}{{{name}}}{{/pascalCase}}>()
+                                : {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.findOne(param.conditions).lean
+                                <I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
+                                    ().setOptions(param.options)
+                                    ).exec();
+                                    }
+                                    findMany(param: {
+                                    conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
+                                        options: QueryFindOptions;
+                                        }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
+                                            return {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.find(param.conditions)
+                                            .lean<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>()
+                                                .setOptions(param.options)
+                                                .exec();
+                                                }
+                                                async findAndCountMany(param: {
+                                                conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
+                                                    options: QueryFindOptions;
+                                                    }): Promise<{ values: I{{#pascalCase}}{{{name}}}{{/pascalCase}}[];
+                                                        total: number; }> {
+                                                        return {
+                                                        total: await this.count({
+                                                        conditions: param.conditions,
+                                                        options: param.options,
+                                                        }),
+                                                        values: await this.findMany({
+                                                        conditions: param.conditions,
+                                                        options: param.options,
+                                                        }),
+                                                        };
+                                                        }
+                                                        async deleteOne(
+                                                        param:
+                                                        | string
+                                                        | {
+                                                        conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
+                                                            options: QueryFindOneAndRemoveOptions;
+                                                            }
+                                                            ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | null>
+                                                                {
+                                                                const deleted = await (typeof param === "string"
+                                                                ?
+                                                                {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.findByIdAndDelete(param).lean
+                                                                <I{{#pascalCase}}{{{name}}}{{/pascalCase}}>()
+                                                                    :
+                                                                    {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.findOneAndDelete(param.conditions)
+                                                                    .lean<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>()
+                                                                        .setOptions(param.options)
+                                                                        ).exec();
+                                                                        if (deleted) this.emit("deleted", deleted);
+                                                                        return deleted;
+                                                                        }
+                                                                        async deleteMany(param: {
+                                                                        conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
+                                                                            options: QueryFindOptions;
+                                                                            }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]>
+                                                                                {
+                                                                                const toDelete = await this.findMany({
+                                                                                conditions: param.conditions,
+                                                                                options: param.options,
+                                                                                });
+                                                                                await
+                                                                                {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.deleteMany(param.conditions).setOptions(param.options).exec();
+                                                                                this.emit("deleted", toDelete);
+                                                                                return toDelete;
+                                                                                }
+                                                                                async updateOne(param: {
+                                                                                conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
+                                                                                    ;
+                                                                                    update: UpdateQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
+                                                                                        ;
+                                                                                        options:
+                                                                                        QueryFindOneAndUpdateOptions;
+                                                                                        }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}
+                                                                                            | null> {
+                                                                                            const old = await
+                                                                                            this.findOne({
+                                                                                            conditions:
+                                                                                            param.conditions,
+                                                                                            options: param.options,
+                                                                                            });
+                                                                                            await
+                                                                                            {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.findOneAndUpdate(param.conditions,
+                                                                                            param.update)
+                                                                                            .setOptions(param.options)
+                                                                                            .exec();
+                                                                                            const updated = await
+                                                                                            this.findOne({
+                                                                                            conditions:
+                                                                                            param.conditions,
+                                                                                            options: param.options,
+                                                                                            });
+                                                                                            if (updated && old)
+                                                                                            this.emit("updated",
+                                                                                            updated, old);
+                                                                                            return updated;
+                                                                                            }
+                                                                                            async updateMany(param: {
+                                                                                            conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
+                                                                                                ;
+                                                                                                update: UpdateQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
+                                                                                                    ;
+                                                                                                    options:
+                                                                                                    QueryFindOneAndUpdateOptions;
+                                                                                                    }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]>
+                                                                                                        {
+                                                                                                        const old =
+                                                                                                        await
+                                                                                                        this.findMany({
+                                                                                                        conditions:
+                                                                                                        param.conditions,
+                                                                                                        options:
+                                                                                                        param.options,
+                                                                                                        });
+                                                                                                        await
+                                                                                                        {{#pascalCase}}{{{name}}}{{/pascalCase}}Model.updateMany(param.conditions,
+                                                                                                        param.update)
+                                                                                                        .lean()
+                                                                                                        .setOptions(param.options)
+                                                                                                        .exec();
+                                                                                                        const updated =
+                                                                                                        await
+                                                                                                        this.findMany({
+                                                                                                        conditions:
+                                                                                                        param.conditions,
+                                                                                                        options:
+                                                                                                        param.options,
+                                                                                                        });
+                                                                                                        if (updated &&
+                                                                                                        old)
+                                                                                                        this.emit("updated",
+                                                                                                        updated, old);
+                                                                                                        return updated;
+                                                                                                        }
+                                                                                                        }

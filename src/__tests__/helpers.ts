@@ -82,7 +82,7 @@ describe("createFileFromHBS", () => {
     const readFile = jest.spyOn(fs, "readFileSync").mockReturnValue("{{lol}}");
     const formatHBS = jest.spyOn(helpers, "formatHBS");
     const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
-    const writeFileSync = jest.spyOn(fs, "writeFileSync");
+    const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation(() => 0);
 
     helpers.createFileFromHBS({
       filePath: "lol",
@@ -129,5 +129,195 @@ describe("getExportedMembersFromFile", () => {
     };
     const result = helpers.getExportedMembersFromFile("test/lol.js");
     expect(result).toEqual(false);
+  });
+});
+
+describe("getTypeFromVariable", () => {
+  test("String should return string", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "string",
+        description: "",
+        example: "",
+        required: true,
+      })
+    ).toEqual("string");
+  });
+  test("Password should return string", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "password",
+        description: "",
+        example: "",
+        required: true,
+      })
+    ).toEqual("string");
+  });
+  test("Date should return string", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "date",
+        description: "",
+        example: "",
+        required: true,
+      })
+    ).toEqual("string");
+  });
+  test("Number should return number", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "number",
+        description: "",
+        example: 2,
+        required: true,
+      })
+    ).toEqual("number");
+  });
+  test("Integer should return number", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "integer",
+        description: "",
+        example: 2,
+        required: true,
+      })
+    ).toEqual("number");
+  });
+  test("Ref should return ref value", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "ref",
+        description: "",
+        ref: "User",
+        required: true,
+      })
+    ).toEqual("User");
+  });
+  test("Ref should return params value if provided", () => {
+    expect(
+      helpers.getTypeFromVariable(
+        {
+          type: "ref",
+          description: "",
+          ref: "User",
+          required: true,
+        },
+        ["T"]
+      )
+    ).toEqual("T");
+  });
+  test("Boolean should return boolean", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "boolean",
+        description: "",
+        example: true,
+        required: true,
+      })
+    ).toEqual("boolean");
+  });
+  test("Array should call getTypeFromVariable with same parameters", () => {
+    const spy = jest.spyOn(helpers, "getTypeFromVariable");
+    const result = helpers.getTypeFromVariable(
+      {
+        type: "array",
+        description: "",
+        items: {
+          type: "boolean",
+          description: "",
+          example: true,
+          required: true,
+        },
+        required: true,
+      },
+      ["T"]
+    );
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(result).toEqual("Array<boolean>");
+    expect(
+      helpers.getTypeFromVariable(
+        {
+          type: "array",
+          description: "",
+          items: {
+            type: "ref",
+            description: "",
+            ref: "USer",
+            required: true,
+          },
+          required: true,
+        },
+        ["T"]
+      )
+    ).toEqual("Array<T>");
+  });
+  test("Object should call convertObjectTypeToInterfaceContent", () => {
+    const spy = jest.spyOn(helpers, "convertObjectTypeToInterfaceContent");
+    const result = helpers.getTypeFromVariable({
+      type: "object",
+      description: "",
+      properties: {
+        bool: {
+          type: "boolean",
+          description: "",
+          example: true,
+          required: true,
+        },
+      },
+      required: true,
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(helpers.normalize(result)).toEqual("{bool:boolean}");
+  });
+  test("Nested Objects should be valid", () => {
+    const result = helpers.getTypeFromVariable({
+      type: "object",
+      description: "",
+      properties: {
+        bool: {
+          type: "object",
+          description: "",
+          properties: {
+            bool: {
+              type: "boolean",
+              description: "",
+              example: true,
+              required: false,
+            },
+          },
+          required: true,
+        },
+      },
+      required: true,
+    });
+    expect(helpers.normalize(result)).toEqual("{bool:{bool?:boolean}}");
+  });
+  test("Nested Objects in array should be valid", () => {
+    const result = helpers.getTypeFromVariable({
+      type: "array",
+      description: "",
+      items: {
+        type: "object",
+        description: "",
+        properties: {
+          bool: {
+            type: "object",
+            description: "",
+            properties: {
+              bool: {
+                type: "boolean",
+                description: "",
+                example: true,
+                required: false,
+              },
+            },
+            required: true,
+          },
+        },
+        required: true,
+      },
+      required: true,
+    });
+    expect(helpers.normalize(result)).toEqual("Array<{bool:{bool?:boolean}}>");
   });
 });

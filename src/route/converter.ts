@@ -15,87 +15,10 @@ import {
   VariableRef,
   VariableString,
 } from "mentine";
-
-export const getTypeFromVariable = (variable: Variable): string => {
-  if (
-    variable.type === "string" ||
-    variable.type === "password" ||
-    variable.type === "date"
-  ) {
-    return `string`;
-  } else if (variable.type === "boolean") {
-    return `boolean`;
-  } else if (variable.type === "number" || variable.type === "integer") {
-    return `number`;
-  } else if (variable.type === "ref") {
-    return `${variable.ref}`;
-  } else if (variable.type === "array") {
-    return `Array<${getTypeFromVariable(variable.items)}>`;
-  } else {
-    return convertObjectTypeToInterfaceContent(variable.properties);
-  }
-};
-
-export const convertOneOfAllOfAnyOfOrObjectTypeToInterface = (
-  value:
-    | ObjectType<Variable>
-    | oneOf<ObjectType<Variable> | VariableRef>
-    | allOf<ObjectType<Variable> | VariableRef>
-    | anyOf<ObjectType<Variable> | VariableRef>
-): string => {
-  if (value.type === "allOf") {
-    return (
-      "{" +
-      value.subSchemas
-        .map((schema) => {
-          if (schema.type === "ref") {
-            console.warn("Ref in allOf is not implemented yet");
-            return "";
-          }
-          return convertObjectTypeToInterfaceContent(
-            schema as ObjectType<Variable>
-          )
-            .replace("{", "")
-            .replace("}", "");
-        })
-        .join("\n") +
-      "}"
-    );
-  } else if (value.type === "anyOf") {
-    return value.subSchemas
-      .map((schema) =>
-        schema.type === "ref"
-          ? getTypeFromVariable(schema as VariableRef)
-          : convertObjectTypeToInterfaceContent(schema as ObjectType<Variable>)
-      )
-      .join("|");
-  } else if (value.type === "oneOf") {
-    return value.subSchemas
-      .map((schema) =>
-        schema.type === "ref"
-          ? getTypeFromVariable(schema as VariableRef)
-          : convertObjectTypeToInterfaceContent(schema as ObjectType<Variable>)
-      )
-      .join("|");
-  } else {
-    return convertObjectTypeToInterfaceContent(value);
-  }
-};
-
-export const convertObjectTypeToInterfaceContent = (object: {
-  [key: string]: Variable;
-}): string => {
-  return (
-    "{" +
-    Object.entries(object)
-      .map(([key, value]) => {
-        const base = `${key}${!value.required ? "?" : ""}:`;
-        return `${base} ${getTypeFromVariable(value)}`;
-      })
-      .join("\n") +
-    "}"
-  );
-};
+import {
+  convertObjectTypeToInterfaceContent,
+  convertOneOfAllOfAnyOfOrObjectTypeToInterface,
+} from "../helpers";
 
 export const getTypescriptInterfaces = (
   route: Route,

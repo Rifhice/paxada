@@ -19,10 +19,10 @@ export default [
 routeId({{{ routeId }}}),
 checkValidator(validator),
 {{#if hasBody}}
-sanityzeBody({{{ bodySanitizer }}})
+sanityzeBody({{{ bodySanitizer }}}),
 {{/if}}
 {{#if hasQuery}}
-sanityzeQuery({{{ querySanitizer }}})
+sanityzeQuery({{{ querySanitizer }}}),
 {{/if}}
 wrapAsync(route),
 ];

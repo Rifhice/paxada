@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "tsc && cp -r src/templates dist/templates",
+    "build": "rm -rf ./dist && tsc && cp -r src/templates dist/templates",
     "start": "npm run build && node dist/index.js",
     "dev": "concurrently -k -n \"Typescript,Node\" -p \"[{name}]\" -c \"blue,green\" \"tsc --watch\" \"nodemon\"",
     "prepare": "npm run build",

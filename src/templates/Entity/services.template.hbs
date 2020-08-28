@@ -1,0 +1,11 @@
+import { TypedEmitter } from "tiny-typed-emitter";
+import { Service } from "typedi";
+import { {{#pascalCase}}{{{name}}}{{/pascalCase}} } from "./persistance/{{#pascalCase}}{{{name}}}{{/pascalCase}}.dao";
+import "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.subscribers";
+
+@Service()
+export class {{#pascalCase}}{{{name}}}{{/pascalCase}}Service extends TypedEmitter<{     }> {
+    constructor(private {{#camelCase}}{{{name}}}{{/camelCase}}DAO: {{#pascalCase}}{{{name}}}{{/pascalCase}}) {
+    super();
+    }
+    }

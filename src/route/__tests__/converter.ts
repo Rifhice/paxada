@@ -1,6 +1,6 @@
 import { Route, Variable, VariableArray, VariableRef } from "mentine";
 import * as utils from "mentine/dist/Route/validators";
-import { normalize } from "../../helpers";
+import * as helpers from "../../helpers";
 import * as converters from "../converter";
 
 const refVariable: VariableRef = {
@@ -158,167 +158,9 @@ describe("getTypescriptInterfaces", () => {
   });
 });
 
-describe("getTypeFromVariable", () => {
-  test("String should return string", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "string",
-        description: "",
-        example: "",
-        required: true,
-      })
-    ).toEqual("string");
-  });
-  test("Password should return string", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "password",
-        description: "",
-        example: "",
-        required: true,
-      })
-    ).toEqual("string");
-  });
-  test("Date should return string", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "date",
-        description: "",
-        example: "",
-        required: true,
-      })
-    ).toEqual("string");
-  });
-  test("Number should return number", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "number",
-        description: "",
-        example: 2,
-        required: true,
-      })
-    ).toEqual("number");
-  });
-  test("Integer should return number", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "integer",
-        description: "",
-        example: 2,
-        required: true,
-      })
-    ).toEqual("number");
-  });
-  test("Ref should return ref value", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "ref",
-        description: "",
-        ref: "User",
-        required: true,
-      })
-    ).toEqual("User");
-  });
-  test("Boolean should return boolean", () => {
-    expect(
-      converters.getTypeFromVariable({
-        type: "boolean",
-        description: "",
-        example: true,
-        required: true,
-      })
-    ).toEqual("boolean");
-  });
-  test("Array should call getTypeFromVariable", () => {
-    const spy = jest.spyOn(converters, "getTypeFromVariable");
-    const result = converters.getTypeFromVariable({
-      type: "array",
-      description: "",
-      items: {
-        type: "boolean",
-        description: "",
-        example: true,
-        required: true,
-      },
-      required: true,
-    });
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(result).toEqual("Array<boolean>");
-  });
-  test("Object should call convertObjectTypeToInterfaceContent", () => {
-    const spy = jest.spyOn(converters, "convertObjectTypeToInterfaceContent");
-    const result = converters.getTypeFromVariable({
-      type: "object",
-      description: "",
-      properties: {
-        bool: {
-          type: "boolean",
-          description: "",
-          example: true,
-          required: true,
-        },
-      },
-      required: true,
-    });
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(normalize(result)).toEqual("{bool:boolean}");
-  });
-  test("Nested Objects should be valid", () => {
-    const result = converters.getTypeFromVariable({
-      type: "object",
-      description: "",
-      properties: {
-        bool: {
-          type: "object",
-          description: "",
-          properties: {
-            bool: {
-              type: "boolean",
-              description: "",
-              example: true,
-              required: false,
-            },
-          },
-          required: true,
-        },
-      },
-      required: true,
-    });
-    expect(normalize(result)).toEqual("{bool:{bool?:boolean}}");
-  });
-  test("Nested Objects in array should be valid", () => {
-    const result = converters.getTypeFromVariable({
-      type: "array",
-      description: "",
-      items: {
-        type: "object",
-        description: "",
-        properties: {
-          bool: {
-            type: "object",
-            description: "",
-            properties: {
-              bool: {
-                type: "boolean",
-                description: "",
-                example: true,
-                required: false,
-              },
-            },
-            required: true,
-          },
-        },
-        required: true,
-      },
-      required: true,
-    });
-    expect(normalize(result)).toEqual("Array<{bool:{bool?:boolean}}>");
-  });
-});
-
 describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
   test("Should convert objectType", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       blacklist: {
         type: "boolean",
         description: "blacklisted",
@@ -326,10 +168,10 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         required: true,
       },
     });
-    expect(normalize(result)).toEqual(`{blacklist:boolean}`);
+    expect(helpers.normalize(result)).toEqual(`{blacklist:boolean}`);
   });
   test("Should convert anyOf", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "anyOf",
       subSchemas: [
         {
@@ -350,10 +192,12 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         },
       ],
     });
-    expect(normalize(result)).toEqual(`{blacklist:boolean}|{like:boolean}`);
+    expect(helpers.normalize(result)).toEqual(
+      `{blacklist:boolean}|{like:boolean}`
+    );
   });
   test("Should convert anyOf with ref", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "anyOf",
       subSchemas: [
         {
@@ -372,10 +216,10 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         },
       ],
     });
-    expect(normalize(result)).toEqual(`{blacklist:boolean}|User`);
+    expect(helpers.normalize(result)).toEqual(`{blacklist:boolean}|User`);
   });
   test("Should convert allOf", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "allOf",
       subSchemas: [
         {
@@ -397,8 +241,8 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         { id: nestedObjectVariable },
       ],
     });
-    expect(normalize(result)).toEqual(
-      normalize(
+    expect(helpers.normalize(result)).toEqual(
+      helpers.normalize(
         `{
         blacklist:boolean
         like:boolean
@@ -412,7 +256,7 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
     );
   });
   test("Should convert allOf with ref", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "allOf",
       subSchemas: [
         {
@@ -435,8 +279,8 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         { type: "ref", description: "", ref: "User", required: true },
       ],
     });
-    expect(normalize(result)).toEqual(
-      normalize(
+    expect(helpers.normalize(result)).toEqual(
+      helpers.normalize(
         `{
         blacklist:boolean
         like:boolean
@@ -450,7 +294,7 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
     );
   });
   test("Should convert oneOf", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "oneOf",
       subSchemas: [
         {
@@ -472,8 +316,8 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         { id: nestedObjectVariable },
       ],
     });
-    expect(normalize(result)).toEqual(
-      normalize(
+    expect(helpers.normalize(result)).toEqual(
+      helpers.normalize(
         `{
         blacklist:boolean } |
         { like:boolean } |
@@ -488,7 +332,7 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
     );
   });
   test("Should convert oneOf with ref", () => {
-    const result = converters.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
+    const result = helpers.convertOneOfAllOfAnyOfOrObjectTypeToInterface({
       type: "oneOf",
       subSchemas: [
         {
@@ -511,8 +355,8 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
         { type: "ref", description: "", ref: "User", required: true },
       ],
     });
-    expect(normalize(result)).toEqual(
-      normalize(
+    expect(helpers.normalize(result)).toEqual(
+      helpers.normalize(
         `{
         blacklist:boolean } | 
         { like:boolean } |
@@ -531,17 +375,17 @@ describe("convertOneOfAllOfAnyOfOrObjectTypeToInterface", () => {
 describe("getSanitizers", () => {
   test("Return an array of keys when it's not a nested object", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.getSanitizers({
           id: stringVariable,
           bool: booleanVariable,
         })
       )
-    ).toEqual(normalize('["id", "bool"]'));
+    ).toEqual(helpers.normalize('["id", "bool"]'));
   });
   test("Return a function it contains a nested object", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.getSanitizers({
           id: stringVariable,
           boolean: booleanVariable,
@@ -549,7 +393,7 @@ describe("getSanitizers", () => {
         })
       )
     ).toEqual(
-      normalize(`({id, boolean, nested: { bool : { bool } } }) => {
+      helpers.normalize(`({id, boolean, nested: { bool : { bool } } }) => {
       return {
         id,
         boolean,
@@ -567,27 +411,29 @@ describe("getSanitizers", () => {
 describe("buildStringValidator", () => {
   test("Should handle required field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({ ...stringVariable, required: false })
       )
-    ).toEqual(normalize(".optional().isString().trim().not().isEmpty()"));
+    ).toEqual(
+      helpers.normalize(".optional().isString().trim().not().isEmpty()")
+    );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({ ...stringVariable, required: true })
       )
-    ).toEqual(normalize(".isString().trim().not().isEmpty()"));
+    ).toEqual(helpers.normalize(".isString().trim().not().isEmpty()"));
   });
   test("Should handle enum field", () => {
     const enumeration = ["lol", "mdr"];
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({
           ...stringVariable,
           enum: enumeration,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         `.optional().isString().trim().not().isEmpty().isIn(["lol","mdr"])`
       )
     );
@@ -595,19 +441,21 @@ describe("buildStringValidator", () => {
   test("Should handle pattern field", () => {
     const pattern = ".*";
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({
           ...stringVariable,
           pattern,
         })
       )
     ).toEqual(
-      normalize(`.optional().isString().trim().not().isEmpty().matches(".*")`)
+      helpers.normalize(
+        `.optional().isString().trim().not().isEmpty().matches(".*")`
+      )
     );
   });
   test("Should handle min max length field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({
           ...stringVariable,
           minLength: 0,
@@ -615,31 +463,31 @@ describe("buildStringValidator", () => {
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         `.optional().isString().trim().not().isEmpty().isLength({min: 0, max: 5})`
       )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({
           ...stringVariable,
           minLength: 3,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         `.optional().isString().trim().not().isEmpty().isLength({min: 3,})`
       )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildStringValidator({
           ...stringVariable,
           maxLength: 0,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         `.optional().isString().trim().not().isEmpty().isLength({max: 0})`
       )
     );
@@ -649,19 +497,19 @@ describe("buildStringValidator", () => {
 describe("buildNumberValidator", () => {
   test("Should handle required field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({ ...numberVariable, required: false })
       )
-    ).toEqual(normalize(".optional().isNumeric()"));
+    ).toEqual(helpers.normalize(".optional().isNumeric()"));
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({ ...numberVariable, required: true })
       )
-    ).toEqual(normalize(".isNumeric()"));
+    ).toEqual(helpers.normalize(".isNumeric()"));
   });
   test("Should handle exclusiveMaximum exclusiveMinimum field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           exclusiveMaximum: 3,
@@ -669,34 +517,38 @@ describe("buildNumberValidator", () => {
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         ".optional().isNumeric().custom((value: number) => value > 0 && value < 3 )"
       )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           exclusiveMaximum: 3,
         })
       )
     ).toEqual(
-      normalize(".optional().isNumeric().custom((value: number) => value < 3 )")
+      helpers.normalize(
+        ".optional().isNumeric().custom((value: number) => value < 3 )"
+      )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           exclusiveMinimum: 0,
         })
       )
     ).toEqual(
-      normalize(".optional().isNumeric().custom((value: number) => value > 0 )")
+      helpers.normalize(
+        ".optional().isNumeric().custom((value: number) => value > 0 )"
+      )
     );
   });
   test("Should handle maximum minimum field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           maximum: 3,
@@ -704,31 +556,31 @@ describe("buildNumberValidator", () => {
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         ".optional().isNumeric().custom((value: number) => value >= 0 && value <= 3 )"
       )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           maximum: 3,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         ".optional().isNumeric().custom((value: number) => value <= 3 )"
       )
     );
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           minimum: 0,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         ".optional().isNumeric().custom((value: number) => value >= 0 )"
       )
     );
@@ -736,14 +588,14 @@ describe("buildNumberValidator", () => {
 
   test("Should handle multipleOf field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildNumberValidator({
           ...numberVariable,
           multipleOf: 2,
         })
       )
     ).toEqual(
-      normalize(
+      helpers.normalize(
         ".optional().isNumeric().custom((value: number) => value % 2 === 0 )"
       )
     );
@@ -753,30 +605,32 @@ describe("buildNumberValidator", () => {
 describe("buildBooleanValidator", () => {
   test("Should handle required field", () => {
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildBooleanValidator({
           ...booleanVariable,
           required: false,
         })
       )
-    ).toEqual(normalize(".optional().isBoolean()"));
+    ).toEqual(helpers.normalize(".optional().isBoolean()"));
     expect(
-      normalize(
+      helpers.normalize(
         converters.buildBooleanValidator({ ...booleanVariable, required: true })
       )
-    ).toEqual(normalize(".isBoolean()"));
+    ).toEqual(helpers.normalize(".isBoolean()"));
   });
 });
 
 describe("buildBooleanValidator", () => {
   test("Should add isDate to string validator", () => {
     const spy = jest.spyOn(converters, "buildStringValidator");
-    const result = normalize(
+    const result = helpers.normalize(
       converters.buildDateValidator(stringVariable as any)
     );
     expect(spy).toHaveBeenCalledTimes(1);
     expect(result).toEqual(
-      normalize(".optional().isString().trim().not().isEmpty().isDate()")
+      helpers.normalize(
+        ".optional().isString().trim().not().isEmpty().isDate()"
+      )
     );
   });
 });
@@ -967,7 +821,7 @@ describe("getValidators", () => {
   describe("oneOf", () => {
     test("Should return appropriate result", () => {
       expect(
-        normalize(
+        helpers.normalize(
           converters.getValidators({
             type: "oneOf",
             subSchemas: [
@@ -978,7 +832,7 @@ describe("getValidators", () => {
           })[0]
         )
       ).toEqual(
-        normalize(
+        helpers.normalize(
           `().custom((value, { req }) => {
           return new Promise(async (resolve, reject) => {
             [
@@ -1001,7 +855,7 @@ describe("getValidators", () => {
   describe("anyOf", () => {
     test("Should return appropriate result", () => {
       expect(
-        normalize(
+        helpers.normalize(
           converters.getValidators({
             type: "anyOf",
             subSchemas: [
@@ -1012,7 +866,7 @@ describe("getValidators", () => {
           })[0]
         )
       ).toEqual(
-        normalize(
+        helpers.normalize(
           `().custom((value, { req }) => {
           return new Promise(async (resolve, reject) => {
             [

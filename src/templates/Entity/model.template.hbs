@@ -1,0 +1,11 @@
+import mongoose from "mongoose";
+import { I{{#pascalCase}}{{{name}}}{{/pascalCase}} } from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.interfaces";
+
+const {{{ name }}}Schema = new mongoose.Schema(
+{{{mongooseData}}},
+{ timestamps: true },
+);
+
+export default mongoose.model<I{{#pascalCase}}{{{name}}}{{/pascalCase}}{{{genericsDefaultValues}}} & mongoose.Document>
+    ("{{#pascalCase}}{{{name}}}{{/pascalCase}}",
+    {{#pascalCase}}{{{name}}}{{/pascalCase}}Schema);

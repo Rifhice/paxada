@@ -2,13 +2,12 @@ import { ObjectType, Route, validateRoute, Variable } from "mentine";
 import { join } from "path";
 import {
   buildFolderStructureFromPath,
-  createFileFromHBS,
   fileExists,
   filesMatching,
+  generateFiles,
   getExportedMembersFromFile,
   getNextRouteId,
   nameRoute,
-  prettify,
 } from "../helpers";
 import {
   getSanitizers,
@@ -136,59 +135,6 @@ export const formatTypescriptInterface = (
   `
     )
     .join("\n");
-};
-
-const checkExistence = async (
-  filePaths: Array<string>
-): Promise<Array<string>> => {
-  const exists = [];
-  for (const filePath of filePaths) {
-    if (await fileExists(filePath)) {
-      exists.push(filePath);
-    }
-  }
-  return exists;
-};
-
-const checkForFilesAndPromptForOverride = async (
-  filePaths: Array<string>
-): Promise<Array<string>> => {
-  const exists = await checkExistence(filePaths);
-  const toCreate = filePaths.filter((file) => !exists.includes(file));
-  if (exists.length > 0) {
-    const result = await inquirer.prompt([
-      {
-        type: "checkbox",
-        name: "overwrite",
-        message: "Those files alredy exists, which do you want to overwrite?",
-        choices: exists,
-      },
-    ]);
-    toCreate.push(...result.overwrite);
-  }
-  return toCreate;
-};
-
-const generateFiles = async (
-  toGenerate: Array<{
-    filePath: string;
-    templatePath: string;
-  }>,
-  data: any
-) => {
-  const filtered = await checkForFilesAndPromptForOverride(
-    toGenerate.map((file) => file.filePath)
-  );
-  toGenerate.forEach(({ filePath, templatePath }) => {
-    if (filtered.includes(filePath)) {
-      createFileFromHBS({
-        filePath,
-        data,
-        templatePath,
-      });
-      prettify(filePath);
-    }
-  });
 };
 
 export default async function generateRoute() {

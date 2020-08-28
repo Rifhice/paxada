@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 require("typescript-require");
+import { generateEntity } from "./entity/generator";
 import generateProject from "./project/generate";
 import generateRoute from "./route/generator";
 import inquirer = require("inquirer");
@@ -18,6 +19,7 @@ inquirer
     if (toGenerate === "Route") {
       generateRoute();
     } else if (toGenerate === "Entity") {
+      generateEntity();
     } else if (toGenerate === "Project") {
       generateProject();
     }

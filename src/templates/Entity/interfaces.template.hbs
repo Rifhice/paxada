@@ -1,0 +1,7 @@
+import * as mongoose from "mongoose"
+
+export declare type I{{#pascalCase}}{{{name}}}{{/pascalCase}}{{{genericsWithDefault}}} = {{{interfaceData}}} & {
+_id: mongoose.Schema.Types.ObjectId,
+createdAt?: string,
+updatedAt?: string
+}

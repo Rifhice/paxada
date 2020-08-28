@@ -9,7 +9,7 @@ export default function generateProject() {
         type: "path",
         name: "path",
         message: "Where?",
-        default: process.cwd(),
+        default: process.cwd() + "my-app",
       },
     ])
     .then(({ path }) => {

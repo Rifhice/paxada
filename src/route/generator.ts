@@ -81,8 +81,8 @@ export const extractDataFromDoc = (doc: Route, name?: string) => {
     doc,
     name,
     hasBody: Object.keys(doc).includes("body"),
-    hasQuery: !!doc.queryVariables,
-    hasParam: !!doc.pathVariables,
+    hasQuery: Object.keys(doc.queryVariables).length > 0,
+    hasParam: Object.keys(doc.pathVariables).length > 0,
   };
   if ((doc.method === "post" || doc.method === "put") && doc.body) {
     result.bodyValidators = getValidators(doc.body).map(

@@ -17,7 +17,7 @@ import {
 import { UserLeanDocument } from "@/entities/User/User.interfaces";
 {{/if}}
 
-export default async (req: Request, res: Response<{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200>) => {
+export default async (req: Request, res: Response<{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200>): Promise<Response<{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200>> => {
     {{#if isPrivate }}
     const user = req.user! as UserLeanDocument
     {{/if}}

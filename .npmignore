@@ -6,3 +6,4 @@ tslint.json
 !dist/templates/Project/tsconfig.json
 !dist/templates/Project/tslint.json
 !dist/templates/Project/.prettierrc
+!dist/templates/Project/.gitignore

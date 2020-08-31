@@ -14,7 +14,7 @@ import {
 } from "./{{#pascalCase}}{{{name}}}{{/pascalCase}}.interfaces";
 {{/ifOr}}
 {{#if isPrivate }}
-import { UserLeanDocument } from "persistance/User/User.interfaces";
+import { UserLeanDocument } from "@/entities/User/User.interfaces";
 {{/if}}
 
 export default async (req: Request, res: Response<{{#pascalCase}}{{{name}}}{{/pascalCase}}Response200>) => {

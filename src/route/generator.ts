@@ -100,7 +100,7 @@ export const extractDataFromDoc = (doc: Route, name?: string) => {
   }
   if (doc.pathVariables)
     result.pathValidators = getValidators(doc.pathVariables).map(
-      (validator) => `path${validator}`
+      (validator) => `param${validator}`
     );
   if (doc.queryVariables) {
     result.queryValidators = getValidators(doc.queryVariables).map(

@@ -1,4 +1,4 @@
-import checkValidator from "middlewares/checkValidator";
+import checkValidator from "@/middlewares/checkValidator";
 import route from "./{{name}}.route";
 import validator from "./{{name}}.validator";
 {{#ifOr hasBody hasQuery}}
@@ -9,10 +9,10 @@ sanityzeBody,
 {{#if hasQuery}}
 sanityzeQuery
 {{/if}}
-} from "middlewares/sanitize";
+} from "@/middlewares/sanitize";
 {{/ifOr}}
-import wrapAsync from "helpers/wrapAsync";
-import routeId from "middlewares/routeId";
+import wrapAsync from "@/helpers/wrapAsync";
+import routeId from "@/middlewares/routeId";
 
 
 export default [

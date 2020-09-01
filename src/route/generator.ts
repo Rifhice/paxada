@@ -143,8 +143,8 @@ export default async function generateRoute() {
 
     let folderPath = join(
       "src",
+      "routes",
       isPrivate ? "private" : "public",
-      "route",
       buildFolderStructureFromPath(path),
       nameRoute(path, method)
     );

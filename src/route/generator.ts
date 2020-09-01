@@ -116,12 +116,12 @@ export const extractDataFromDoc = (doc: Route, name?: string) => {
   return result;
 };
 
-export const extractDataFromDocFile = (docPath: string) => {
+export const extractDataFromDocFile = (docPath: string, name?: string) => {
   const exportedMembers = getExportedMembersFromFile(docPath);
   const { route } = exportedMembers;
   if (!route) throw Error();
   validateRoute(route);
-  return extractDataFromDoc(route);
+  return extractDataFromDoc(route, name);
 };
 
 export const formatTypescriptInterface = (
@@ -140,13 +140,13 @@ export const formatTypescriptInterface = (
 export default async function generateRoute() {
   try {
     const { method, path, isPrivate } = await promptRouteInfo();
-
+    let name = nameRoute(path, method);
     let folderPath = join(
       "src",
       "routes",
       isPrivate ? "private" : "public",
       buildFolderStructureFromPath(path),
-      nameRoute(path, method)
+      name
     );
 
     const { agreed } = await inquirer.prompt([
@@ -166,6 +166,7 @@ export default async function generateRoute() {
         },
       ]);
       folderPath = path;
+      name = path.split("/").pop();
     }
 
     const buildFilePath = (fileExtension) =>
@@ -182,7 +183,7 @@ export default async function generateRoute() {
     if (docFile) {
       const data = {
         isPrivate,
-        ...extractDataFromDocFile(docFile),
+        ...extractDataFromDocFile(docFile, name),
         routeId: await getNextRouteId(),
       };
 

@@ -4,6 +4,6 @@ export type DeletedListener<T> = (deleted: T | T[]) => any;
 
 export interface DAOEvents<T> {
     created: CreatedListener<T>;
-    deleted: UpdatedListener<T>;
-    updated: DeletedListener<T>;
+    deleted: DeletedListener<T>;
+    updated: UpdatedListener<T>;
 }

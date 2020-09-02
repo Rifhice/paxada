@@ -219,7 +219,7 @@ export default async function generateRoute() {
         {
           path,
           method,
-          hasBody: method === "POST" || method === "PUT",
+          hasBody: method === "post" || method === "put",
         }
       );
     }

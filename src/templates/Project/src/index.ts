@@ -1,6 +1,7 @@
 #!/usr/bin/env ts-node-script
 /* eslint-disable import/first */
 require('module-alias/register');
+require('reflect-metadata');
 
 import { NODE_ENV, PORT, WEB_CONCURRENCY } from '@/config';
 import { startServer } from '@/loaders/index';

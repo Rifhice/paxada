@@ -198,7 +198,7 @@ export default async function generateRoute() {
             templatePath: buildTemplatePath("validators.template.hbs"),
           },
           {
-            filePath: buildFilePath(".index.ts"),
+            filePath: join(folderPath, "index.ts"),
             templatePath: buildTemplatePath("index.template.hbs"),
           },
           {

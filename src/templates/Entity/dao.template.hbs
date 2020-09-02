@@ -21,7 +21,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
         this.Model = model;
     }
     
-      count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options: QueryFindOptions }): Promise<number> {
+      count(param: { conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>; options?: QueryFindOptions }): Promise<number> {
         return  this.Model.count(param.conditions).setOptions(param.options).exec();
         }
 
@@ -41,7 +41,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                     | string
                     | {
                     conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
-                        options: QueryFindOptions;
+                        options?: QueryFindOptions;
                         }
                         ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | null> {
                             return (typeof param === "string"
@@ -55,7 +55,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
 
                                       findMany(param: {
                                     conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
-                                        options: QueryFindOptions;
+                                        options?: QueryFindOptions;
                                         }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]> {
                                             return  this.Model.find(param.conditions)
                                             .lean<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>()
@@ -65,17 +65,17 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
 
                                                   async findAndCountMany(param: {
                                                 conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
-                                                    options: QueryFindOptions;
+                                                    options?: QueryFindOptions;
                                                     }): Promise<{ values: I{{#pascalCase}}{{{name}}}{{/pascalCase}}[];
                                                         total: number; }> {
                                                         return {
                                                         total: await this.count({
                                                         conditions: param.conditions,
-                                                        options: param.options,
+                                                        options?: param.options,
                                                         }),
                                                         values: await this.findMany({
                                                         conditions: param.conditions,
-                                                        options: param.options,
+                                                        options?: param.options,
                                                         }),
                                                         };
                                                         }
@@ -85,7 +85,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                         | string
                                                         | {
                                                         conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
-                                                            options: QueryFindOneAndRemoveOptions;
+                                                            options?: QueryFindOneAndRemoveOptions;
                                                             }
                                                             ): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}} | null>
                                                                 {
@@ -104,12 +104,12 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
 
                                                                         async deleteMany(param: {
                                                                         conditions: FilterQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>;
-                                                                            options: QueryFindOptions;
+                                                                            options?: QueryFindOptions;
                                                                             }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]>
                                                                                 {
                                                                                 const toDelete = await  this.findMany({
                                                                                 conditions: param.conditions,
-                                                                                options: param.options,
+                                                                                options?: param.options,
                                                                                 });
                                                                                 await
                                                                                  this.Model.deleteMany(param.conditions).setOptions(param.options).exec();
@@ -122,7 +122,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                     ;
                                                                                     update: UpdateQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
                                                                                         ;
-                                                                                        options:
+                                                                                        options?:
                                                                                         QueryFindOneAndUpdateOptions;
                                                                                         }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}
                                                                                             | null> {
@@ -130,7 +130,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                              this.findOne({
                                                                                             conditions:
                                                                                             param.conditions,
-                                                                                            options: param.options,
+                                                                                            options?: param.options,
                                                                                             });
                                                                                             await
                                                                                              this.Model.findOneAndUpdate(param.conditions,
@@ -141,7 +141,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                              this.findOne({
                                                                                             conditions:
                                                                                             param.conditions,
-                                                                                            options: param.options,
+                                                                                            options?: param.options,
                                                                                             });
                                                                                             if (updated && old)
                                                                                             this.emit("updated",
@@ -154,7 +154,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                                 ;
                                                                                                 update: UpdateQuery<I{{#pascalCase}}{{{name}}}{{/pascalCase}}>
                                                                                                     ;
-                                                                                                    options:
+                                                                                                    options?:
                                                                                                     QueryFindOneAndUpdateOptions;
                                                                                                     }): Promise<I{{#pascalCase}}{{{name}}}{{/pascalCase}}[]>
                                                                                                         {
@@ -163,7 +163,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                                          this.findMany({
                                                                                                         conditions:
                                                                                                         param.conditions,
-                                                                                                        options:
+                                                                                                        options?:
                                                                                                         param.options,
                                                                                                         });
                                                                                                         await
@@ -177,7 +177,7 @@ export class {{#pascalCase}}{{{name}}}{{/pascalCase}}DAO extends TypedEmitter
                                                                                                          this.findMany({
                                                                                                         conditions:
                                                                                                         param.conditions,
-                                                                                                        options:
+                                                                                                        options?:
                                                                                                         param.options,
                                                                                                         });
                                                                                                         if (updated &&

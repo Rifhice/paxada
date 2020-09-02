@@ -11,16 +11,16 @@ export default ({ app }: { app: Express }): void => {
         const parsed = ErrorStackParser.parse(err);
         const first = parsed.shift();
         if (err instanceof HttpRequestError) {
-            const fileType = first?.fileName?.includes('checkValidator.js')
+            const fileType = first?.fileName?.includes('checkValidator')
                 ? 'V'
-                : first?.fileName?.includes('.route.js')
+                : first?.fileName?.includes('.route')
                 ? 'R'
                 : first?.fileName?.includes('middlewares')
                 ? 'M'
                 : 'U';
             const errorCodes =
                 err.errorIds instanceof Array
-                    ? `-${err.errorIds
+                    ? `-${Array.from(new Set(err.errorIds))
                           .map<string>((errorId: string | number) => addLeadingCharacter(errorId, 3))
                           .join('-')}`
                     : `-${addLeadingCharacter(err.errorIds, 3)}`;

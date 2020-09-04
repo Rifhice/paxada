@@ -46,6 +46,7 @@
         "moment": "^2.27.0",
         "mongoose": "^5.10.0",
         "morgan": "^1.10.0",
+        "jwt-simple": "^0.5.6",
         "sjoa-builder": "^1.0.5",
         "socket.io": "^2.3.0",
         "tiny-typed-emitter": "^2.0.2",

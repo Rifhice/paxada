@@ -164,7 +164,7 @@ describe("extractDataFrom", () => {
     );
     expect(refsCount).toEqual(0);
     expect(helpers.normalize(defaultGeneric)).toEqual(
-      helpers.normalize("ObjectId")
+      helpers.normalize("mongoose.Schema.Types.ObjectId")
     );
     expect(helpers.normalize(genericsWithDefault)).toEqual(
       helpers.normalize("")

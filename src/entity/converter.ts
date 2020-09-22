@@ -16,6 +16,9 @@ import { convertOneOfAllOfAnyOfOrObjectTypeToInterface } from "../helpers";
 export const countRefs = (object: ObjectType<Variable>) => {
   return Object.values(object).reduce((acc, variable) => {
     if (variable.type === "array") {
+      if (variable.items.type === "object") {
+        return acc + countRefs(variable.items.properties);
+      }
       return acc + (variable.items.type === "ref" ? 1 : 0);
     } else if (variable.type === "object") {
       return acc + countRefs(variable.properties);

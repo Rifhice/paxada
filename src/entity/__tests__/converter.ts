@@ -65,19 +65,47 @@ const nestedObjectVariable: Variable = {
 };
 
 const entity: Entity = {
-  simplified: true,
-  name: "Post",
-  schema: {
-    content: stringVariable,
-    author: {
-      type: "ref",
-      ref: "User",
-      description: "s",
-      required: true,
+    simplified: true,
+    name: "Post",
+    schema: {
+        content: stringVariable,
+        author: {
+            type: "ref",
+            ref: "User",
+            description: "s",
+            required: true,
+        },
+        comments: numberVariable,
+        attachments: nestedObjectVariable,
     },
-    comments: numberVariable,
-    attachments: nestedObjectVariable,
-  },
+};
+
+const entityComplex: Entity = {
+    simplified: true,
+    name: "Post",
+    schema: {
+        content: stringVariable,
+        authors: {
+            type: "array",
+            required: true,
+            description: "xd",
+            items: {
+                type: "object",
+                description: "mdr",
+                required: true,
+                properties: {
+                    author: {
+                        type: "ref",
+                        ref: "User",
+                        description: "s",
+                        required: true,
+                    }
+                }
+            }
+        },
+        comments: numberVariable,
+        attachments: nestedObjectVariable,
+    },
 };
 
 describe("convertEntityToInterface", () => {
@@ -170,6 +198,24 @@ describe("convertEntityToInterface", () => {
     }`)
     );
   });
+    test("Should return valid result 3", () => {
+        expect(
+            helpers.normalize(converters.convertEntityToInterface(entityComplex))
+        ).toEqual(
+            helpers.normalize(`{
+        content?: string
+        authors: Array<{
+            author: A
+        }>
+        comments?: number
+        attachments: {
+            bool: {
+                bool?: boolean
+            }
+        }
+    }`)
+        );
+    });
 });
 
 describe("convertEntityToMongooseData", () => {

@@ -110,7 +110,7 @@ export const generateEntityFiles = (data: EntityData) => {
 };
 
 export const extractDataFrom = (entity: Entity): EntityData => {
-  const defaultGeneric = "ObjectId";
+  const defaultGeneric = "mongoose.Schema.Types.ObjectId";
   return {
     name: entity.name,
     interfaceData: convertEntityToInterface(entity),

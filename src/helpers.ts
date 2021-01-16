@@ -34,11 +34,12 @@ export const getTypeFromVariable = (
   variable: Variable,
   refArray?: string[]
 ): string => {
-  if (
-    variable.type === "string" ||
-    variable.type === "password" ||
-    variable.type === "date"
-  ) {
+  if (variable.type === "string") {
+    return variable?.enum !== undefined
+      ? variable.enum.map((value) => `'${value}'`).join("|")
+      : "string";
+  }
+  if (variable.type === "password" || variable.type === "date") {
     return `string`;
   } else if (variable.type === "boolean") {
     return `boolean`;
@@ -152,7 +153,8 @@ export const nameRoute = (
   const component = filteredPath[componentIndex];
   return pascalCase(
     `${verbMap[method]}${pascalCase(
-      method !== "get" || componentIndex === 1
+      (method !== "get" || componentIndex === 1) &&
+        component[component.length - 1].toLowerCase() === "s"
         ? component.slice(0, component.length - 1)
         : component
     )}`

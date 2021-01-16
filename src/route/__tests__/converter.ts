@@ -709,9 +709,9 @@ describe("getValidators", () => {
           number: numberVariable,
         })
       ).toEqual([
-        `('id').optional().isString().trim().not().isEmpty()`,
-        `('boolean').optional().isBoolean()`,
-        `('number').optional().isNumeric()`,
+        `('id', { code: 0, message: 'Validation for id failed, should be a string' }).optional().isString().trim().not().isEmpty()`,
+        `('boolean', { code: 1, message: 'Validation for boolean failed, should be a boolean' }).optional().isBoolean()`,
+        `('number', { code: 2, message: 'Validation for number failed, should be a number' }).optional().isNumeric()`,
       ]);
     });
     test("Should return appropriate result with array", () => {
@@ -722,10 +722,10 @@ describe("getValidators", () => {
           array: arrayVariable,
         })
       ).toEqual([
-        `('id').optional().isString().trim().not().isEmpty()`,
-        `('boolean').optional().isBoolean()`,
-        `('array').optional().isArray()`,
-        `('array.*').optional().isBoolean()`,
+        `('id', { code: 0, message: 'Validation for id failed, should be a string' }).optional().isString().trim().not().isEmpty()`,
+        `('boolean', { code: 1, message: 'Validation for boolean failed, should be a boolean' }).optional().isBoolean()`,
+        `('array', { code: 2, message: 'Validation for array failed, should be a array' }).optional().isArray()`,
+        `('array.*', { code: 3, message: 'Validation for array.* failed, should be a boolean' }).optional().isBoolean()`,
       ]);
     });
     test("Should return appropriate result with nested array", () => {
@@ -739,11 +739,11 @@ describe("getValidators", () => {
           },
         })
       ).toEqual([
-        `('id').optional().isString().trim().not().isEmpty()`,
-        `('boolean').optional().isBoolean()`,
-        `('array').optional().isArray()`,
-        `('array.*').optional().isArray()`,
-        `('array.*.*').optional().isBoolean()`,
+        `('id', { code: 0, message: 'Validation for id failed, should be a string' }).optional().isString().trim().not().isEmpty()`,
+        `('boolean', { code: 1, message: 'Validation for boolean failed, should be a boolean' }).optional().isBoolean()`,
+        `('array', { code: 2, message: 'Validation for array failed, should be a array' }).optional().isArray()`,
+        `('array.*', { code: 3, message: 'Validation for array.* failed, should be a array' }).optional().isArray()`,
+        `('array.*.*', { code: 4, message: 'Validation for array.*.* failed, should be a boolean' }).optional().isBoolean()`,
       ]);
     });
     test("Should return appropriate result with object", () => {
@@ -773,10 +773,10 @@ describe("getValidators", () => {
           array: arrayVariable,
         })
       ).toEqual([
-        `('object.id').optional().isNumeric()`,
-        `('object.bool.bool').optional().isBoolean()`,
-        `('array').optional().isArray()`,
-        `('array.*').optional().isBoolean()`,
+        `('object.id', { code: 0, message: 'Validation for object.id failed, should be a number' }).optional().isNumeric()`,
+        `('object.bool.bool', { code: 1, message: 'Validation for object.bool.bool failed, should be a boolean' }).optional().isBoolean()`,
+        `('array', { code: 2, message: 'Validation for array failed, should be a array' }).optional().isArray()`,
+        `('array.*', { code: 3, message: 'Validation for array.* failed, should be a boolean' }).optional().isBoolean()`,
       ]);
     });
     test("Should return appropriate result with nested array and nested object", () => {
@@ -811,10 +811,10 @@ describe("getValidators", () => {
           },
         })
       ).toEqual([
-        `('array').optional().isArray()`,
-        `('array.*').optional().isArray()`,
-        `('array.*.*.id').optional().isNumeric()`,
-        `('array.*.*.bool.bool').optional().isBoolean()`,
+        `('array', { code: 0, message: 'Validation for array failed, should be a array' }).optional().isArray()`,
+        `('array.*', { code: 1, message: 'Validation for array.* failed, should be a array' }).optional().isArray()`,
+        `('array.*.*.id', { code: 2, message: 'Validation for array.*.*.id failed, should be a number' }).optional().isNumeric()`,
+        `('array.*.*.bool.bool', { code: 3, message: 'Validation for array.*.*.bool.bool failed, should be a boolean' }).optional().isBoolean()`,
       ]);
     });
   });
@@ -837,10 +837,10 @@ describe("getValidators", () => {
           return new Promise(async (resolve, reject) => {
             [
               await Promise.all([
-                ('id').optional().isNumeric().run(req, { dryRun: true }),
+                ('id', { code: 0, message: 'Validation for id failed, should be a number' }).optional().isNumeric().run(req, { dryRun: true }),
               ]),
               await Promise.all([
-                ('object.bool.bool').optional().isBoolean().run(req, { dryRun: true }),
+                ('object.bool.bool', { code: 1, message: 'Validation for object.bool.bool failed, should be a boolean' }).optional().isBoolean().run(req, { dryRun: true }),
               ])
             ].some((result) => result.every((test) => test.isEmpty()))
               ? resolve()
@@ -871,10 +871,10 @@ describe("getValidators", () => {
           return new Promise(async (resolve, reject) => {
             [
               await Promise.all([
-                ('id').optional().isNumeric().run(req, { dryRun: true }),
+                ('id', { code: 0, message: 'Validation for id failed, should be a number' }).optional().isNumeric().run(req, { dryRun: true }),
               ]),
               await Promise.all([
-                ('object.bool.bool').optional().isBoolean().run(req, { dryRun: true }),
+                ('object.bool.bool', { code: 1, message: 'Validation for object.bool.bool failed, should be a boolean' }).optional().isBoolean().run(req, { dryRun: true }),
               ])
             ].some((result) => result.every((test) => test.isEmpty()))
               ? resolve()
@@ -898,8 +898,8 @@ describe("getValidators", () => {
           ],
         })
       ).toEqual([
-        `('id').optional().isNumeric()`,
-        `('object.bool.bool').optional().isBoolean()`,
+        `('id', { code: 0, message: 'Validation for id failed, should be a number' }).optional().isNumeric()`,
+        `('object.bool.bool', { code: 1, message: 'Validation for object.bool.bool failed, should be a boolean' }).optional().isBoolean()`,
       ]);
     });
   });

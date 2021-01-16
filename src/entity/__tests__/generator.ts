@@ -75,21 +75,13 @@ describe("generateEntity", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
   test("Error on empty name", async (done) => {
-    jest
-      .spyOn(generator, "getEntityName")
-      //@ts-ignore
-      .mockResolvedValueOnce("lol")
-      //@ts-ignore
-      .mockResolvedValueOnce({})
-      //@ts-ignore
-      .mockResolvedValueOnce({ name: false })
-      .mockResolvedValue({ name: "lol" });
     expect(generator.generateEntity()).rejects.toEqual(new Error());
     expect(generator.generateEntity()).rejects.toEqual(new Error());
     expect(generator.generateEntity()).rejects.toEqual(new Error());
     done();
   });
   test("Should look for a doc file", () => {
+    jest.spyOn(generator, "getEntityName").mockResolvedValue("lol");
     const spy = jest.spyOn(generator, "getDocFilePathIfExists");
     generator.getDocFilePathIfExists("lol");
     expect(spy).toHaveBeenCalledTimes(1);

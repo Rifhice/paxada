@@ -47,6 +47,7 @@ describe("nameRoute", () => {
     expect(helpers.nameRoute("/posts/:postId", "get")).toEqual("GetPost");
     expect(helpers.nameRoute("/posts", "get")).toEqual("GetPosts");
     expect(helpers.nameRoute("/posts", "post")).toEqual("CreatePost");
+    expect(helpers.nameRoute("Atchoum", "post")).toEqual("CreateAtchoum");
     expect(helpers.nameRoute("/posts/:postId", "delete")).toEqual("DeletePost");
     expect(helpers.nameRoute("/posts/:postId", "put")).toEqual("UpdatePost");
   });
@@ -82,7 +83,9 @@ describe("createFileFromHBS", () => {
     const readFile = jest.spyOn(fs, "readFileSync").mockReturnValue("{{lol}}");
     const formatHBS = jest.spyOn(helpers, "formatHBS");
     const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
-    const writeFileSync = jest.spyOn(fs, "writeFileSync").mockImplementation(() => 0);
+    const writeFileSync = jest
+      .spyOn(fs, "writeFileSync")
+      .mockImplementation(() => 0);
 
     helpers.createFileFromHBS({
       filePath: "lol",
@@ -133,6 +136,17 @@ describe("getExportedMembersFromFile", () => {
 });
 
 describe("getTypeFromVariable", () => {
+  test("String with enum should return an enum", () => {
+    expect(
+      helpers.getTypeFromVariable({
+        type: "string",
+        description: "",
+        enum: ["lol", "mdr"],
+        example: "",
+        required: true,
+      })
+    ).toEqual("'lol'|'mdr'");
+  });
   test("String should return string", () => {
     expect(
       helpers.getTypeFromVariable({

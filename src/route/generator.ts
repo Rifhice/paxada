@@ -137,9 +137,46 @@ export const formatTypescriptInterface = (
     .join("\n");
 };
 
-export default async function generateRoute() {
+export type RouteUserPromptAgreedPath = {
+  method: string;
+  path: string;
+  isPrivate: boolean;
+  generateAtGeneratedPath: true;
+};
+export type RouteUserPromptDisagreedPath = {
+  method: string;
+  path: string;
+  isPrivate: boolean;
+  generateAtGeneratedPath: false;
+  filesPath: string;
+};
+
+export type RouteUserPrompt =
+  | RouteUserPromptAgreedPath
+  | RouteUserPromptDisagreedPath;
+
+export const routeUserPromptToString = (prompts: RouteUserPrompt): string => {
+  return Object.entries(prompts)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+};
+
+export const isRouteUserPrompt = (
+  userPrompt: any
+): userPrompt is RouteUserPrompt => {
+  return typeof userPrompt.method === "string";
+};
+
+export default async function generateRoute(
+  defaultUserPrompt?: RouteUserPrompt
+): Promise<RouteUserPrompt> {
   try {
-    const { method, path, isPrivate } = await promptRouteInfo();
+    let userPrompt: Partial<RouteUserPrompt> = {};
+
+    const { method, path, isPrivate } =
+      defaultUserPrompt !== undefined
+        ? defaultUserPrompt
+        : await promptRouteInfo();
     let name = nameRoute(path, method);
     let folderPath = join(
       "src",
@@ -149,24 +186,36 @@ export default async function generateRoute() {
       name
     );
 
-    const { agreed } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "agreed",
-        message: "The route files will be generated at " + folderPath,
-      },
-    ]);
+    const { agreed } =
+      defaultUserPrompt !== undefined
+        ? { agreed: defaultUserPrompt.generateAtGeneratedPath }
+        : await inquirer.prompt([
+            {
+              type: "confirm",
+              name: "agreed",
+              message: "The route files will be generated at " + folderPath,
+            },
+          ]);
+
+    userPrompt = { method, path, isPrivate, generateAtGeneratedPath: agreed };
 
     if (!agreed) {
-      const { path } = await inquirer.prompt([
-        {
-          type: "input",
-          name: "path",
-          message: "Where do you want to generate the files?",
-        },
-      ]);
+      const { path } =
+        defaultUserPrompt !== undefined
+          ? {
+              path: (defaultUserPrompt as RouteUserPromptDisagreedPath)
+                .filesPath,
+            }
+          : await inquirer.prompt([
+              {
+                type: "input",
+                name: "path",
+                message: "Where do you want to generate the files?",
+              },
+            ]);
       folderPath = path;
       name = path.split("/").pop();
+      (userPrompt as RouteUserPromptDisagreedPath).filesPath = path;
     }
 
     const buildFilePath = (fileExtension) =>
@@ -223,6 +272,7 @@ export default async function generateRoute() {
         }
       );
     }
+    return userPrompt as RouteUserPrompt;
   } catch (error) {
     console.log(error);
     if (error.isTtyError) {

@@ -22,14 +22,16 @@ export type EntityData = {
   mongooseData: string;
 };
 
-export const getEntityName = (): Promise<{ name }> => {
-  return inquirer.prompt([
+export const getEntityName = async (): Promise<string> => {
+  const result = await inquirer.prompt([
     {
       type: "input",
       message: "What's the name of the entity?",
       name: "name",
     },
   ]);
+  if (!result || !result.name) throw Error();
+  return result.name;
 };
 
 export const buildEntitiesPath = () => {
@@ -124,10 +126,26 @@ export const extractDataFrom = (entity: Entity): EntityData => {
   };
 };
 
-export const generateEntity = async () => {
-  const result = await getEntityName();
-  if (!result || !result.name) throw Error();
-  const { name } = result;
+export type EntityUserPrompt = { name: string };
+
+export const isEntityUserPrompt = (
+  userPrompt: any
+): userPrompt is EntityUserPrompt => {
+  return typeof userPrompt.name === "string";
+};
+
+export const entityUserPromptToString = (
+  userPrompt: EntityUserPrompt
+): string => {
+  return Object.entries(userPrompt)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ");
+};
+
+export const generateEntity = async (
+  userPrompt?: EntityUserPrompt
+): Promise<EntityUserPrompt> => {
+  const name = userPrompt ? userPrompt.name : await getEntityName();
   const docFilePath = await getDocFilePathIfExists(name);
   if (!docFilePath) {
     await generateDocFile(name);
@@ -137,4 +155,5 @@ export const generateEntity = async () => {
     const data = extractDataFrom(docFileContent.entity);
     await generateEntityFiles(data);
   }
+  return { name };
 };

@@ -196,31 +196,43 @@ export const buildNumberValidator = ({
   return chain;
 };
 
-export const buildVariableWithKey = (variable: Variable, key: string) => {
+export const buildVariableWithKey = (
+  variable: Variable,
+  key: string,
+  line = 0
+) => {
   if (variable.type === "array") {
     const [arrayValidator, itemsValidator] = buildValidators(variable);
     if (variable.items.type === "array" || variable.items.type === "object") {
       return [
-        `('${key}')${arrayValidator}`,
-        ...buildVariableWithKey(variable.items, `${key}.*`).flat(),
+        `('${key}', { code: ${line}, message: 'Validation for ${key} failed, should be a ${variable.type}' })${arrayValidator}`,
+        ...buildVariableWithKey(variable.items, `${key}.*`, line + 1).flat(),
       ];
     }
     return [
-      `('${key}')${arrayValidator}`,
-      `('${key}.*')${itemsValidator}`,
+      `('${key}', { code: ${line}, message: 'Validation for ${key} failed, should be a ${variable.type}' })${arrayValidator}`,
+      `('${key}.*', { code: ${
+        line + 1
+      }, message: 'Validation for ${key}.* failed, should be a ${
+        variable.items.type
+      }' })${itemsValidator}`,
     ].flat();
   }
   if (variable.type === "object") {
     return Object.entries(variable.properties)
-      .map(([subKey, variable]) => {
+      .map(([subKey, variable], i) => {
         if (variable.type === "object") {
-          return buildVariableWithKey(variable, `${key}.${subKey}`);
+          return buildVariableWithKey(variable, `${key}.${subKey}`, line + i);
         }
-        return `('${key}.${subKey}')${buildValidators(variable)}`;
+        return `('${key}.${subKey}', { code: ${line}, message: 'Validation for ${key}.${subKey} failed, should be a ${
+          variable.type
+        }' })${buildValidators(variable)}`;
       })
       .flat();
   }
-  return `('${key}')${buildValidators(variable)}`;
+  return `('${key}', { code: ${line}, message: 'Validation for ${key} failed, should be a ${
+    variable.type
+  }' })${buildValidators(variable)}`;
 };
 
 export const getValidators = (
@@ -228,7 +240,8 @@ export const getValidators = (
     | ObjectType<Variable>
     | oneOf<ObjectType<Variable> | VariableRef>
     | allOf<ObjectType<Variable> | VariableRef>
-    | anyOf<ObjectType<Variable> | VariableRef>
+    | anyOf<ObjectType<Variable> | VariableRef>,
+  currentLine = 0
 ): string[] => {
   if (body.type === "allOf") {
     return body.subSchemas
@@ -237,7 +250,12 @@ export const getValidators = (
           console.warn("Ref not implemented for validators");
           return;
         }
-        return getValidators(subSchema as ObjectType<Variable>);
+        const validators = getValidators(
+          subSchema as ObjectType<Variable>,
+          currentLine
+        );
+        currentLine += validators.length;
+        return validators;
       })
       .filter(Boolean)
       .flat();
@@ -247,13 +265,18 @@ export const getValidators = (
       return new Promise(async (resolve, reject) => {
         [
           ${body.subSchemas
-            .map((subSchema) => {
+            .map((subSchema, i) => {
               if (subSchema.type === "ref") {
                 return console.warn("Ref not implemented for validators");
               }
-              return `await Promise.all([${getValidators(
-                subSchema as ObjectType<Variable>
-              ).map((validator) => `${validator}.run(req,{dryRun:true}),`)}])`;
+              const validators = getValidators(
+                subSchema as ObjectType<Variable>,
+                currentLine
+              );
+              currentLine += validators.length;
+              return `await Promise.all([${validators.map(
+                (validator) => `${validator}.run(req,{dryRun:true}),`
+              )}])`;
             })
             .filter(Boolean)}
         ].some((result) => result.every((test) => test.isEmpty()))
@@ -272,9 +295,12 @@ export const getValidators = (
                 if (subSchema.type === "ref") {
                   return console.warn("Ref not implemented for validators");
                 }
-                return `await Promise.all([${getValidators(
-                  subSchema as ObjectType<Variable>
-                ).map(
+                const validators = getValidators(
+                  subSchema as ObjectType<Variable>,
+                  currentLine
+                );
+                currentLine += validators.length;
+                return `await Promise.all([${validators.map(
                   (validator) => `${validator}.run(req,{dryRun:true}),`
                 )}])`;
               })
@@ -288,7 +314,9 @@ export const getValidators = (
   }
   return Object.entries(body)
     .map(([key, variable]) => {
-      return buildVariableWithKey(variable, key);
+      const variables = buildVariableWithKey(variable, key, currentLine);
+      currentLine += typeof variables === "string" ? 1 : variables.length;
+      return variables;
     })
     .flat()
     .map((validator) => `${validator}`);

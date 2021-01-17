@@ -73,10 +73,21 @@ export const convertStringVariableToMongooseSchemaContent = (
       : ""
   } ${variable.required ? `, required: true` : ""}${
     variable.readOnly ? `, immutable: true` : ""
-  } ${variable.minLength ? `, minlength: ${variable.minLength}` : ""} ${
-    variable.maxLength ? `, maxlength: ${variable.maxLength}` : ""
+  } ${
+    typeof variable.minLength !== "undefined"
+      ? `, minlength: ${variable.minLength}`
+      : ""
+  } ${
+    typeof variable.maxLength !== "undefined"
+      ? `, maxlength: ${variable.maxLength}`
+      : ""
   }
-  ${variable.pattern ? `, match: "${variable.pattern}"` : ""} }`;
+  ${variable.pattern ? `, match: "${variable.pattern}"` : ""}
+  ${
+    typeof variable.default !== "undefined"
+      ? `, default: "${variable.default}"`
+      : ""
+  } }`;
 };
 
 export const convertNumberVariableToMongooseSchemaContent = (
@@ -85,12 +96,22 @@ export const convertNumberVariableToMongooseSchemaContent = (
   return `{ type: Number ${variable.required ? `, required: true` : ""}${
     variable.readOnly ? `, immutable: true` : ""
   }
-  ${variable.maximum ? `, max: ${variable.maximum}` : ""}${
-    variable.minimum ? `, min: ${variable.minimum}` : ""
+  ${
+    typeof variable.maximum !== "undefined" ? `, max: ${variable.maximum}` : ""
   }${
-    variable.exclusiveMaximum ? `, max: ${variable.exclusiveMaximum - 1}` : ""
+    typeof variable.minimum !== "undefined" ? `, min: ${variable.minimum}` : ""
   }${
-    variable.exclusiveMinimum ? `, min: ${variable.exclusiveMinimum + 1}` : ""
+    typeof variable.exclusiveMaximum !== "undefined"
+      ? `, max: ${variable.exclusiveMaximum - 1}`
+      : ""
+  }${
+    typeof variable.exclusiveMinimum !== "undefined"
+      ? `, min: ${variable.exclusiveMinimum + 1}`
+      : ""
+  }${
+    typeof variable.default !== "undefined"
+      ? `, default: ${variable.default}`
+      : ""
   } }`;
 };
 
@@ -99,6 +120,10 @@ export const convertBooleanVariableToMongooseSchemaContent = (
 ) => {
   return `{ type: Boolean ${variable.required ? `, required: true` : ""}${
     variable.readOnly ? `, immutable: true` : ""
+  }${
+    typeof variable.default !== "undefined"
+      ? `, default: ${variable.default}`
+      : ""
   } }`;
 };
 
@@ -107,6 +132,10 @@ export const convertDateVariableToMongooseSchemaContent = (
 ) => {
   return `{ type: Date ${variable.required ? `, required: true` : ""}${
     variable.readOnly ? `, immutable: true` : ""
+  }${
+    typeof variable.default !== "undefined"
+      ? `, default: "${variable.default}"`
+      : ""
   } }`;
 };
 

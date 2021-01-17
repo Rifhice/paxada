@@ -65,47 +65,47 @@ const nestedObjectVariable: Variable = {
 };
 
 const entity: Entity = {
-    simplified: true,
-    name: "Post",
-    schema: {
-        content: stringVariable,
-        author: {
+  simplified: true,
+  name: "Post",
+  schema: {
+    content: stringVariable,
+    author: {
+      type: "ref",
+      ref: "User",
+      description: "s",
+      required: true,
+    },
+    comments: numberVariable,
+    attachments: nestedObjectVariable,
+  },
+};
+
+const entityComplex: Entity = {
+  simplified: true,
+  name: "Post",
+  schema: {
+    content: stringVariable,
+    authors: {
+      type: "array",
+      required: true,
+      description: "xd",
+      items: {
+        type: "object",
+        description: "mdr",
+        required: true,
+        properties: {
+          author: {
             type: "ref",
             ref: "User",
             description: "s",
             required: true,
+          },
         },
-        comments: numberVariable,
-        attachments: nestedObjectVariable,
+      },
     },
-};
-
-const entityComplex: Entity = {
-    simplified: true,
-    name: "Post",
-    schema: {
-        content: stringVariable,
-        authors: {
-            type: "array",
-            required: true,
-            description: "xd",
-            items: {
-                type: "object",
-                description: "mdr",
-                required: true,
-                properties: {
-                    author: {
-                        type: "ref",
-                        ref: "User",
-                        description: "s",
-                        required: true,
-                    }
-                }
-            }
-        },
-        comments: numberVariable,
-        attachments: nestedObjectVariable,
-    },
+    comments: numberVariable,
+    attachments: nestedObjectVariable,
+  },
 };
 
 describe("convertEntityToInterface", () => {
@@ -198,11 +198,11 @@ describe("convertEntityToInterface", () => {
     }`)
     );
   });
-    test("Should return valid result 3", () => {
-        expect(
-            helpers.normalize(converters.convertEntityToInterface(entityComplex))
-        ).toEqual(
-            helpers.normalize(`{
+  test("Should return valid result 3", () => {
+    expect(
+      helpers.normalize(converters.convertEntityToInterface(entityComplex))
+    ).toEqual(
+      helpers.normalize(`{
         content?: string
         authors: Array<{
             author: A
@@ -214,8 +214,8 @@ describe("convertEntityToInterface", () => {
             }
         }
     }`)
-        );
-    });
+    );
+  });
 });
 
 describe("convertEntityToMongooseData", () => {
@@ -682,6 +682,27 @@ describe("convertStringVariableToMongooseSchemaContent", () => {
       )
     );
   });
+  test("Should return result with default", () => {
+    expect(
+      helpers.normalize(
+        converters.convertStringVariableToMongooseSchemaContent({
+          type: "string",
+          description: "",
+          example: "",
+          required: true,
+          enum: ["lol", "mdr"],
+          minLength: 3,
+          maxLength: 10,
+          pattern: "lol",
+          default: "mdr",
+        })
+      )
+    ).toEqual(
+      helpers.normalize(
+        `{ type: String, enum: ["lol", "mdr"], required: true, minlength: 3, maxlength: 10, match: "lol", default: "mdr" }`
+      )
+    );
+  });
 });
 
 describe("convertNumberVariableToMongooseSchemaContent", () => {
@@ -777,6 +798,23 @@ describe("convertNumberVariableToMongooseSchemaContent", () => {
       )
     ).toEqual(helpers.normalize(`{ type: Number, max: 3, min: 16 }`));
   });
+  test("Should return result valid number with default", () => {
+    expect(
+      helpers.normalize(
+        converters.convertNumberVariableToMongooseSchemaContent({
+          type: "number",
+          description: "",
+          example: 3,
+          required: false,
+          maximum: 3,
+          exclusiveMinimum: 15,
+          default: 0,
+        })
+      )
+    ).toEqual(
+      helpers.normalize(`{ type: Number, max: 3, min: 16, default: 0 }`)
+    );
+  });
 });
 
 describe("convertBooleanVariableToMongooseSchemaContent", () => {
@@ -817,6 +855,22 @@ describe("convertBooleanVariableToMongooseSchemaContent", () => {
       )
     ).toEqual(helpers.normalize(`{ type: Boolean, immutable: true }`));
   });
+  test("Should return result valid boolean with default", () => {
+    expect(
+      helpers.normalize(
+        converters.convertBooleanVariableToMongooseSchemaContent({
+          type: "boolean",
+          description: "",
+          example: true,
+          required: false,
+          readOnly: true,
+          default: true,
+        })
+      )
+    ).toEqual(
+      helpers.normalize(`{ type: Boolean, immutable: true, default: true }`)
+    );
+  });
 });
 
 describe("convertDateVariableToMongooseSchemaContent", () => {
@@ -856,6 +910,24 @@ describe("convertDateVariableToMongooseSchemaContent", () => {
         })
       )
     ).toEqual(helpers.normalize(`{ type: Date, immutable: true }`));
+  });
+  test("Should return result valid date with default", () => {
+    expect(
+      helpers.normalize(
+        converters.convertDateVariableToMongooseSchemaContent({
+          type: "date",
+          description: "",
+          example: "",
+          required: false,
+          readOnly: true,
+          default: "2020-01-01",
+        })
+      )
+    ).toEqual(
+      helpers.normalize(
+        `{ type: Date, immutable: true, default: "2020-01-01" }`
+      )
+    );
   });
 });
 
